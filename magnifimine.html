@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>О проекте — magnifimine | Лимоновка РП</title>
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: radial-gradient(circle at 50% 0%, #2a2a2a 0%, #0d0d0d 70%);
+        color: #fff;
+        min-height: 100vh;
+        padding: 40px 20px;
+        overflow-x: hidden;
+    }
+    .bg-glow {
+        position: fixed;
+        width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(255,200,0,0.15) 0%, transparent 70%);
+        top: -200px; left: 50%;
+        transform: translateX(-50%);
+        pointer-events: none;
+        z-index: 0;
+        animation: glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+        0%, 100% { opacity: 0.7; transform: translateX(-50%) scale(1); }
+        50%      { opacity: 1;   transform: translateX(-50%) scale(1.15); }
+    }
+    .container {
+        position: relative;
+        z-index: 1;
+        max-width: 800px;
+        margin: 0 auto;
+        background: rgba(20,20,20,0.85);
+        border: 1px solid rgba(255,200,0,0.25);
+        border-radius: 20px;
+        padding: 45px 50px;
+        box-shadow: 0 20px 60px rgba(0,0,0,0.7), 0 0 80px rgba(255,200,0,0.08);
+        backdrop-filter: blur(10px);
+        opacity: 0;
+        transform: translateY(30px);
+        animation: cardIn 0.8s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+    }
+    @keyframes cardIn {
+        to { opacity: 1; transform: translateY(0); }
+    }
+    .back {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        color: #ffc800;
+        text-decoration: none;
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 25px;
+        transition: all 0.25s;
+    }
+    .back:hover { transform: translateX(-5px); }
+    h1 {
+        font-size: 34px;
+        font-weight: 900;
+        background: linear-gradient(90deg, #ffe14d, #ffb800, #ffe14d);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        margin-bottom: 10px;
+        text-transform: uppercase;
+        animation: logoShine 3s linear infinite;
+    }
+    @keyframes logoShine { to { background-position: 200% center; } }
+    .sub { color: #888; font-size: 14px; margin-bottom: 30px; }
+
+    .info-block {
+        padding: 20px 22px;
+        background: rgba(62,207,142,0.06);
+        border: 1px solid rgba(62,207,142,0.3);
+        border-radius: 14px;
+        margin-bottom: 22px;
+        font-size: 14px;
+        color: #ccc;
+        line-height: 1.7;
+    }
+    .info-block b { color: #9defc4; }
+    .warn-block {
+        padding: 16px 20px;
+        background: rgba(255,200,0,0.06);
+        border-left: 3px solid #ffb800;
+        border-radius: 10px;
+        margin-bottom: 28px;
+        font-size: 13px;
+        color: #ddd;
+        line-height: 1.6;
+    }
+    .warn-block b { color: #ffc800; }
+
+    .section-title {
+        color: #ffc800;
+        font-size: 18px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin: 10px 0 16px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid rgba(255,200,0,0.25);
+    }
+
+    .channels {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+    }
+    .channel {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        padding: 
