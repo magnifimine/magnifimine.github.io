@@ -111,9 +111,264 @@
         display: grid;
         grid-template-columns: 1fr 1fr;
         gap: 14px;
+        margin-bottom: 28px;
     }
     .channel {
         display: flex;
         align-items: center;
         gap: 14px;
-        padding: 
+        padding: 16px 18px;
+        background: rgba(255,255,255,0.04);
+        border: 1px solid rgba(255,255,255,0.1);
+        border-radius: 14px;
+        text-decoration: none;
+        color: #ddd;
+        transition: all 0.25s ease;
+    }
+    .channel:hover {
+        background: rgba(255,200,0,0.08);
+        border-color: rgba(255,200,0,0.5);
+        transform: translateY(-3px);
+        box-shadow: 0 10px 25px rgba(255,200,0,0.15);
+    }
+    .channel-icon {
+        width: 42px; height: 42px;
+        border-radius: 12px;
+        display: flex; align-items: center; justify-content: center;
+        flex-shrink: 0;
+        background: rgba(255,255,255,0.06);
+    }
+    .channel-icon svg { width: 22px; height: 22px; }
+    .channel-info { flex: 1; }
+    .channel-info h3 {
+        font-size: 14px;
+        font-weight: 800;
+        margin-bottom: 3px;
+        color: #fff;
+    }
+    .channel-info p {
+        font-size: 12px;
+        color: #999;
+        line-height: 1.4;
+    }
+    .channel.tg .channel-icon svg  { color: #4fc3f7; }
+    .channel.gh .channel-icon svg  { color: #e6e6e6; }
+    .channel.yt .channel-icon svg  { color: #ff5b5b; }
+    .channel.tt .channel-icon svg  { color: #69f0ff; }
+    .channel.tg:hover { border-color: rgba(79,195,247,0.6);  background: rgba(79,195,247,0.1); }
+    .channel.gh:hover { border-color: rgba(255,255,255,0.5); background: rgba(255,255,255,0.08); }
+    .channel.yt:hover { border-color: rgba(255,91,91,0.6);   background: rgba(255,91,91,0.1); }
+    .channel.tt:hover { border-color: rgba(105,240,255,0.6); background: rgba(105,240,255,0.1); }
+
+    .timeline {
+        position: relative;
+        padding-left: 30px;
+        margin-bottom: 28px;
+    }
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px; top: 8px; bottom: 8px;
+        width: 2px;
+        background: linear-gradient(180deg, #ffb800, rgba(255,184,0,0.1));
+    }
+    .event {
+        position: relative;
+        padding: 16px 20px;
+        background: rgba(255,255,255,0.03);
+        border: 1px solid rgba(255,255,255,0.08);
+        border-radius: 12px;
+        margin-bottom: 14px;
+        transition: all 0.25s ease;
+    }
+    .event:hover {
+        background: rgba(255,200,0,0.06);
+        border-color: rgba(255,200,0,0.4);
+        transform: translateX(5px);
+    }
+    .event::before {
+        content: '';
+        position: absolute;
+        left: -30px; top: 22px;
+        width: 14px; height: 14px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, #ffe14d, #ffb800);
+        box-shadow: 0 0 15px rgba(255,184,0,0.9);
+    }
+    .event-date {
+        display: inline-block;
+        font-size: 12px;
+        font-weight: 700;
+        color: #ffc800;
+        background: rgba(255,200,0,0.12);
+        border: 1px solid rgba(255,200,0,0.3);
+        padding: 3px 12px;
+        border-radius: 20px;
+        margin-bottom: 8px;
+    }
+    .event-title {
+        font-size: 15px;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: 5px;
+    }
+    .event-text {
+        font-size: 13px;
+        color: #aaa;
+        line-height: 1.6;
+    }
+
+    .note-list {
+        list-style: none;
+        margin-bottom: 10px;
+    }
+    .note-list li {
+        position: relative;
+        padding: 8px 0 8px 24px;
+        font-size: 13px;
+        color: #ccc;
+        line-height: 1.6;
+    }
+    .note-list li::before {
+        content: '▸';
+        position: absolute;
+        left: 0;
+        color: #ffb800;
+        font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+        .container { padding: 30px 22px; }
+        h1 { font-size: 24px; }
+        .section-title { font-size: 15px; }
+        .channels { grid-template-columns: 1fr; }
+        .channel { padding: 14px; }
+    }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+<div class="container">
+    <a href="index.html" class="back">← Назад на главную</a>
+    <h1>О проекте magnifimine</h1>
+    <p class="sub">История создания и развития «Лимоновка РП»</p>
+
+    <div class="info-block">
+        <b>magnifimine</b> — это команда, которая создала и развивает проект «Лимоновка РП».
+        Всё, что связано с сервером, лаунчером и сайтом, делается силами этой команды.
+        Только официальные каналы magnifimine публикуют правдивые и проверенные новости
+        об обновлениях, анонсах и событиях проекта. Любая информация о «Лимоновке РП»
+        из других источников может быть недостоверной.
+    </div>
+
+    <div class="warn-block">
+        <b>Важно:</b> доверяйте только официальным каналам magnifimine. Если вы видите новости
+        о проекте где-то ещё — перепроверьте их в Telegram, GitHub, YouTube или TikTok
+        команды. Там публикуются только правдивые и актуальные материалы.
+    </div>
+
+    <div class="section-title">Официальные каналы magnifimine</div>
+
+    <div class="channels">
+        <a href="https://t.me/limonovka20" target="_blank" class="channel tg">
+            <div class="channel-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+                </svg>
+            </div>
+            <div class="channel-info">
+                <h3>Telegram</h3>
+                <p>Новости, анонсы и обновления проекта</p>
+            </div>
+        </a>
+        <a href="https://github.com/magnifimine" target="_blank" class="channel gh">
+            <div class="channel-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 .5C5.65.5.5 5.65.5 12c0 5.08 3.29 9.39 7.86 10.91.58.11.79-.25.79-.55 0-.27-.01-1.17-.02-2.12-3.2.7-3.88-1.36-3.88-1.36-.52-1.33-1.28-1.68-1.28-1.68-1.05-.72.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.55-.29-5.24-1.28-5.24-5.68 0-1.25.45-2.28 1.19-3.08-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.18 1.18a11 11 0 0 1 2.9-.39c.98 0 1.97.13 2.9.39 2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.8 1.19 1.83 1.19 3.08 0 4.41-2.69 5.38-5.25 5.67.41.35.78 1.05.78 2.12 0 1.53-.01 2.76-.01 3.14 0 .3.21.67.8.55C20.71 21.39 24 17.08 24 12 24 5.65 18.35.5 12 .5z"/>
+                </svg>
+            </div>
+            <div class="channel-info">
+                <h3>GitHub</h3>
+                <p>Исходники, файлы лаунчера и обновления</p>
+            </div>
+        </a>
+        <a href="https://youtube.com/@magnifimine" target="_blank" class="channel yt">
+            <div class="channel-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.6 12 3.6 12 3.6s-7.5 0-9.4.5A3 3 0 0 0 .5 6.2 31 31 0 0 0 0 12a31 31 0 0 0 .5 5.8 3 3 0 0 0 2.1 2.1c1.9.5 9.4.5 9.4.5s7.5 0 9.4-.5a3 3 0 0 0 2.1-2.1A31 31 0 0 0 24 12a31 31 0 0 0-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/>
+                </svg>
+            </div>
+            <div class="channel-info">
+                <h3>YouTube</h3>
+                <p>Видео, обзоры и геймплей проекта</p>
+            </div>
+        </a>
+        <a href="https://tiktok.com/@magnifimine" target="_blank" class="channel tt">
+            <div class="channel-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.9 2.9 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1-.1z"/>
+                </svg>
+            </div>
+            <div class="channel-info">
+                <h3>TikTok</h3>
+                <p>Короткие видео и новости проекта</p>
+            </div>
+        </a>
+    </div>
+
+    <div class="section-title">История проекта</div>
+
+    <div class="timeline">
+        <div class="event">
+            <div class="event-date">Ноябрь 2024</div>
+            <div class="event-title">Основание magnifimine</div>
+            <div class="event-text">
+                Команда magnifimine была создана в ноябре 2024 года. С этого момента началась
+                работа над проектами, которые позже привели к запуску «Лимоновки РП».
+            </div>
+        </div>
+        <div class="event">
+            <div class="event-date">5 декабря 2024</div>
+            <div class="event-title">Первый сервер</div>
+            <div class="event-text">
+                Был открыт первый сервер команды magnifimine. Это стал важный шаг — появился
+                первый опыт запуска и поддержки игрового проекта.
+            </div>
+        </div>
+        <div class="event">
+            <div class="event-date">Конец августа 2025</div>
+            <div class="event-title">Старт разработки «Лимоновки»</div>
+            <div class="event-text">
+                В конце августа началась разработка проекта «Лимоновка РП»: готовились
+                механики, карта, лаунчер и сайт. Работа велась командой magnifimine.
+            </div>
+        </div>
+        <div class="event">
+            <div class="event-date">29 сентября 2025</div>
+            <div class="event-title">Лаунчер вышел, но игра ещё недоступна</div>
+            <div class="event-text">
+                Лаунчер «Лимоновки» был выпущен и стал доступен для скачивания, однако зайти
+                в игру было нельзя — сервер ещё не был готов к запуску.
+            </div>
+        </div>
+        <div class="event">
+            <div class="event-date">12 октября 2025</div>
+            <div class="event-title">Официальное открытие «Лимоновки РП»</div>
+            <div class="event-text">
+                Именно 12 октября проект открылся для игроков: сервер заработал, и все, кто
+                скачал лаунчер, смогли зайти в игру и начать играть.
+            </div>
+        </div>
+    </div>
+
+    <div class="section-title">Что важно знать</div>
+    <ul class="note-list">
+        <li>«Лимоновка РП» создана и развивается командой <b>magnifimine</b>.</li>
+        <li>Правдивые новости и обновления публикуются только в официальных каналах команды.</li>
+        <li>Скачивайте лаунчер только по официальным ссылкам с этого сайта.</li>
+        <li>Если информация о проекте взята из другого источника — она может быть недостоверной.</li>
+        <li>Все официальные файлы и сборки доступны в GitHub команды magnifimine.</li>
+    </ul>
+</div>
+</body>
+</html>
