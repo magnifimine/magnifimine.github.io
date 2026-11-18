@@ -1,0 +1,433 @@
+<?php
+// ============================================================
+//  index.php — лендинг (лаунчер + вход), без регистрации
+// ============================================================
+$DEBUG = isset($_GET['debug']) && $_GET['debug'] === '1';
+if ($DEBUG) {
+    ini_set('display_errors', '1');
+    error_reporting(E_ALL);
+}
+
+require __DIR__ . '/config.php';
+
+$siteName    = "Лимоновка РП";
+$launcherUrl = "https://github.com/magnifimine/limonovka/raw/main/Limonovka_Setup.exe";
+// Запасной лаунчер (зеркало/альтернативная сборка)
+$fallbackUrl = "https://github.com/magnifimine/limonovka/raw/main/Limonovka_Setup2.exe";
+// Компоненты для лаунчера (Visual C++ Redistributable x64)
+$vcRedistUrl = "https://aka.ms/vc14/vc_redist.x64.exe";
+$telegramUrl = "https://t.me/limonovka20";
+$forumUrl    = "https://magnifimine.hstn.me";
+
+if (isset($_GET['download'])) {
+    header('Location: ' . $launcherUrl);
+    exit;
+}
+if (isset($_GET['download_fallback'])) {
+    header('Location: ' . $fallbackUrl);
+    exit;
+}
+if (isset($_GET['download_vcredist'])) {
+    header('Location: ' . $vcRedistUrl);
+    exit;
+}
+
+$player = current_player();
+$BASE   = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/\\');
+$SELF   = ($BASE === '' ? '' : $BASE) . '/index.php';
+$MY     = ($BASE === '' ? '' : $BASE) . '/my.php';
+
+// Какой лаунчер выбран для инструкции: основной или запасной
+$guide = null;
+if (isset($_GET['guide'])) {
+    $guide = $_GET['guide'] === 'fallback' ? 'fallback' : 'main';
+}
+?>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title><?= htmlspecialchars($siteName) ?> — Скачать лаунчер</title>
+<meta name="description" content="Официальный лаунчер <?= htmlspecialchars($siteName) ?>. Скачай и играй бесплатно.">
+<style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+        font-family: 'Segoe UI', Tahoma, sans-serif;
+        background: radial-gradient(circle at 50% 0%, #2a2a2a 0%, #0d0d0d 70%);
+        color: #fff; min-height: 100vh;
+        display: flex; align-items: center; justify-content: center;
+        padding: 20px; overflow-x: hidden;
+    }
+    .bg-glow {
+        position: fixed; width: 600px; height: 600px;
+        background: radial-gradient(circle, rgba(255,200,0,.15) 0%, transparent 70%);
+        top: -200px; left: 50%; transform: translateX(-50%);
+        pointer-events: none; z-index: 0;
+        animation: glowPulse 4s ease-in-out infinite;
+    }
+    @keyframes glowPulse {
+        0%,100% { opacity:.7; transform:translateX(-50%) scale(1); }
+        50%     { opacity:1;  transform:translateX(-50%) scale(1.15); }
+    }
+    .landing-top {
+        position: fixed; top: 18px; right: 22px; z-index: 5;
+        display: flex; gap: 10px;
+    }
+    .landing-top a {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 10px 18px; border-radius: 10px;
+        font-size: 13px; font-weight: 700; letter-spacing: .3px;
+        text-decoration: none; transition: all .25s ease;
+        color: #ffc800; background: rgba(255,200,0,.1);
+        border: 1px solid rgba(255,200,0,.45);
+    }
+    .landing-top a:hover {
+        background: rgba(255,200,0,.2); transform: translateY(-2px);
+    }
+    .landing-top a.cab {
+        color: #9defc4; background: rgba(62,207,142,.1);
+        border-color: rgba(62,207,142,.45);
+    }
+    .landing-top a.cab:hover { background: rgba(62,207,142,.2); }
+    .landing-top a.forum {
+        color: #b39ddb; background: rgba(149,117,205,.1);
+        border-color: rgba(149,117,205,.45);
+    }
+    .landing-top a.forum:hover { background: rgba(149,117,205,.2); }
+    .card {
+        position: relative; z-index: 1;
+        background: rgba(20,20,20,.85);
+        border: 1px solid rgba(255,200,0,.25);
+        border-radius: 20px; padding: 50px 60px;
+        max-width: 480px; width: 100%; text-align: center;
+        box-shadow: 0 20px 60px rgba(0,0,0,.7), 0 0 80px rgba(255,200,0,.08);
+        backdrop-filter: blur(10px);
+        opacity: 0; transform: translateY(30px) scale(.96);
+        animation: cardIn .8s cubic-bezier(.22,1,.36,1) forwards;
+    }
+    @keyframes cardIn { to { opacity:1; transform:translateY(0) scale(1); } }
+    .logo {
+        font-size: 42px; font-weight: 900; letter-spacing: 2px;
+        background: linear-gradient(90deg,#ffe14d,#ffb800,#ffe14d);
+        background-size: 200% auto;
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 8px;
+        text-transform: uppercase;
+        animation: logoShine 3s linear infinite;
+    }
+    @keyframes logoShine { to { background-position: 200% center; } }
+    .subtitle { color:#999; font-size:15px; margin-bottom:35px;
+        opacity:0; animation: fadeUp .6s ease .3s forwards; }
+    .badge {
+        display:inline-block; background:rgba(255,200,0,.1);
+        border:1px solid rgba(255,200,0,.4); color:#ffc800;
+        padding:4px 14px; border-radius:30px; font-size:12px;
+        margin-bottom:25px; font-weight:600;
+        opacity:0; animation: fadeUp .6s ease .15s forwards;
+    }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(15px);} to{opacity:1;transform:translateY(0);} }
+    .btn-download {
+        display:inline-flex; align-items:center; justify-content:center; gap:12px;
+        width:100%; padding:18px 30px; font-size:18px; font-weight:800;
+        text-transform:uppercase; letter-spacing:1px; color:#1a1a1a;
+        background:linear-gradient(135deg,#ffe14d 0%,#ffb800 100%);
+        background-size:200% auto; border:none; border-radius:12px;
+        cursor:pointer; text-decoration:none; transition:all .25s ease;
+        box-shadow:0 8px 25px rgba(255,184,0,.35); margin-bottom:12px;
+        opacity:0;
+        animation: fadeUp .6s ease .45s forwards, btnGlow 2.5s ease-in-out 1.2s infinite;
+        position:relative; overflow:hidden;
+    }
+    @keyframes btnGlow {
+        0%,100% { box-shadow:0 8px 25px rgba(255,184,0,.35); }
+        50%     { box-shadow:0 8px 40px rgba(255,184,0,.7); }
+    }
+    .btn-download::before {
+        content:''; position:absolute; top:0; left:-100%;
+        width:100%; height:100%;
+        background:linear-gradient(90deg,transparent,rgba(255,255,255,.5),transparent);
+        transition:left .6s ease;
+    }
+    .btn-download:hover::before { left:100%; }
+    .btn-download:hover {
+        transform:translateY(-3px);
+        box-shadow:0 12px 35px rgba(255,184,0,.55);
+        animation-play-state:paused;
+    }
+    .btn-download:active { transform:translateY(0); }
+    .btn-download svg { width:22px; height:22px; }
+    .btn-download:hover svg { animation:bounceDown .6s ease infinite; }
+    @keyframes bounceDown { 0%,100%{transform:translateY(0);} 50%{transform:translateY(3px);} }
+
+    /* ===== Запасной лаунчер ===== */
+    .fallback {
+        margin-top: 6px; margin-bottom: 20px;
+        opacity:0; animation: fadeUp .6s ease .55s forwards;
+    }
+    .btn-fallback {
+        display:inline-flex; align-items:center; justify-content:center; gap:10px;
+        width:100%; padding:12px 20px; font-size:14px; font-weight:700;
+        letter-spacing:.3px; color:#ffc800; background:rgba(255,200,0,.06);
+        border:1px dashed rgba(255,200,0,.45); border-radius:10px;
+        cursor:pointer; text-decoration:none; transition:all .25s ease;
+    }
+    .btn-fallback:hover {
+        background:rgba(255,200,0,.12);
+        border-style:solid; border-color:rgba(255,200,0,.8);
+        transform:translateY(-2px);
+        box-shadow:0 8px 20px rgba(255,200,0,.15);
+    }
+    .btn-fallback svg { width:18px; height:18px; }
+    .fallback-hint {
+        display:block; margin-top:6px; font-size:11px;
+        color:#777; line-height:1.4;
+    }
+
+    .menu {
+        display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px;
+        margin-bottom:18px;
+        opacity:0; animation: fadeUp .6s ease .65s forwards;
+    }
+    .btn-menu {
+        display:inline-flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:6px; padding:14px 8px; font-size:12px; font-weight:700; letter-spacing:.3px;
+        color:#ddd; background:rgba(255,255,255,.04);
+        border:1px solid rgba(255,255,255,.1); border-radius:12px;
+        text-decoration:none; transition:all .25s ease;
+    }
+    .btn-menu:hover {
+        color:#ffc800; background:rgba(255,200,0,.08);
+        border-color:rgba(255,200,0,.5); transform:translateY(-3px);
+        box-shadow:0 8px 20px rgba(255,200,0,.15);
+    }
+    .btn-menu svg { width:20px; height:20px; }
+
+    .btn-telegram {
+        display:inline-flex; align-items:center; justify-content:center; gap:10px;
+        width:100%; padding:15px 30px; font-size:15px; font-weight:700;
+        letter-spacing:.5px; color:#4fc3f7; background:rgba(79,195,247,.08);
+        border:1px solid rgba(79,195,247,.4); border-radius:12px;
+        cursor:pointer; text-decoration:none; transition:all .25s ease;
+        opacity:0; animation: fadeUp .6s ease .8s forwards;
+    }
+    .btn-telegram:hover {
+        background:rgba(79,195,247,.15); border-color:rgba(79,195,247,.7);
+        transform:translateY(-3px); box-shadow:0 10px 25px rgba(79,195,247,.25);
+    }
+    .btn-telegram:hover svg { animation: tgWiggle .5s ease infinite; }
+    @keyframes tgWiggle { 0%,100%{transform:rotate(0);} 25%{transform:rotate(-10deg);} 75%{transform:rotate(10deg);} }
+    .btn-telegram svg { width:20px; height:20px; }
+
+    /* ===== Страница-инструкция ===== */
+    .guide-title {
+        font-size: 26px; font-weight: 900; letter-spacing: 1px;
+        background: linear-gradient(90deg,#ffe14d,#ffb800,#ffe14d);
+        background-size: 200% auto;
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        background-clip: text; margin-bottom: 6px;
+        animation: logoShine 3s linear infinite;
+    }
+    .guide-sub { color:#999; font-size:14px; margin-bottom:26px; }
+    .steps { text-align:left; margin-bottom: 26px; }
+    .step {
+        display:flex; gap:14px; align-items:flex-start;
+        padding:14px 16px; margin-bottom:12px;
+        background:rgba(255,255,255,.03);
+        border:1px solid rgba(255,255,255,.08);
+        border-radius:12px;
+        opacity:0; transform:translateY(12px);
+        animation: fadeUp .5s ease forwards;
+    }
+    .step:nth-child(1) { animation-delay:.15s; }
+    .step:nth-child(2) { animation-delay:.3s; }
+    .step:nth-child(3) { animation-delay:.45s; }
+    .step-num {
+        flex-shrink:0; width:30px; height:30px; border-radius:50%;
+        display:flex; align-items:center; justify-content:center;
+        font-size:14px; font-weight:800; color:#1a1a1a;
+        background:linear-gradient(135deg,#ffe14d,#ffb800);
+    }
+    .step-body { flex:1; }
+    .step-title { font-size:14px; font-weight:700; color:#fff; margin-bottom:3px; }
+    .step-text { font-size:12px; color:#999; line-height:1.5; }
+    .step-text a { color:#7ec8e3; text-decoration:none; }
+    .step-text a:hover { text-decoration:underline; }
+    .btn-step {
+        display:inline-flex; align-items:center; justify-content:center; gap:8px;
+        margin-top:8px; padding:8px 16px; font-size:12px; font-weight:700;
+        border-radius:8px; text-decoration:none; transition:all .25s ease;
+    }
+    .btn-step.vc { color:#7ec8e3; background:rgba(126,200,227,.08);
+        border:1px solid rgba(126,200,227,.45); }
+    .btn-step.vc:hover { background:rgba(126,200,227,.18); transform:translateY(-1px); }
+    .btn-step.launch { color:#1a1a1a;
+        background:linear-gradient(135deg,#ffe14d,#ffb800);
+        border:none; box-shadow:0 4px 15px rgba(255,184,0,.3); }
+    .btn-step.launch:hover { transform:translateY(-1px);
+        box-shadow:0 6px 20px rgba(255,184,0,.5); }
+    .btn-step svg { width:16px; height:16px; }
+    .guide-back {
+        display:inline-flex; align-items:center; gap:6px;
+        font-size:13px; font-weight:600; color:#888;
+        text-decoration:none; transition:color .25s ease;
+    }
+    .guide-back:hover { color:#ffc800; }
+    .guide-note {
+        font-size:11px; color:#777; line-height:1.5;
+        padding:12px 14px; margin-bottom:22px;
+        background:rgba(255,200,0,.05);
+        border:1px solid rgba(255,200,0,.2);
+        border-radius:10px; text-align:left;
+    }
+    .guide-note b { color:#ffc800; }
+
+    @media (max-width:500px) {
+        .card { padding:35px 25px; }
+        .logo { font-size:30px; }
+        .btn-download { font-size:15px; padding:15px 20px; }
+        .btn-fallback { font-size:13px; padding:11px 16px; }
+        .btn-telegram { font-size:14px; padding:13px 20px; }
+        .btn-menu { font-size:11px; padding:12px 4px; }
+        .landing-top { top:10px; right:10px; }
+        .landing-top a { padding:8px 12px; font-size:12px; }
+        .guide-title { font-size:22px; }
+    }
+</style>
+</head>
+<body>
+<div class="bg-glow"></div>
+
+<div class="landing-top">
+    <?php if ($player): ?>
+        <a href="<?= htmlspecialchars($MY) ?>" class="cab">
+            👤 <?= htmlspecialchars($player['name']) ?> · Кабинет
+        </a>
+    <?php else: ?>
+        <a href="<?= htmlspecialchars($forumUrl) ?>" target="_blank" class="forum">💬 Форум</a>
+    <?php endif; ?>
+</div>
+
+<?php if ($guide): ?>
+<!-- ================= СТРАНИЦА-ИНСТРУКЦИЯ ================= -->
+<div class="card">
+    <div class="badge">ИНСТРУКЦИЯ</div>
+    <h1 class="guide-title">Перед установкой</h1>
+    <p class="guide-sub"><?= $guide === 'fallback' ? 'Запасной лаунчер' : 'Основной лаунчер' ?> — выполните шаги по порядку</p>
+
+    <div class="steps">
+        <div class="step">
+            <div class="step-num">1</div>
+            <div class="step-body">
+                <div class="step-title">Скачайте компоненты</div>
+                <div class="step-text">Visual C++ Redistributable x64 — без него лаунчер может не запуститься.</div>
+                <a href="?download_vcredist=1" class="btn-step vc">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Скачать компоненты
+                </a>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">2</div>
+            <div class="step-body">
+                <div class="step-title">Установите компоненты</div>
+                <div class="step-text">Запустите скачанный <b>vc_redist.x64.exe</b> и следуйте установщику (галочка «Я согласен» → Установить).</div>
+            </div>
+        </div>
+        <div class="step">
+            <div class="step-num">3</div>
+            <div class="step-body">
+                <div class="step-title">Скачайте лаунчер</div>
+                <div class="step-text">После установки компонентов можно качать <?= $guide === 'fallback' ? 'запасной' : 'основной' ?> лаунчер.</div>
+                <a href="<?= $guide === 'fallback' ? '?download_fallback=1' : '?download=1' ?>" class="btn-step launch">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+                        <polyline points="7 10 12 15 17 10"/>
+                        <line x1="12" y1="15" x2="12" y2="3"/>
+                    </svg>
+                    Скачать <?= $guide === 'fallback' ? 'запасной лаунчер' : 'лаунчер' ?>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="guide-note">
+        <b>Важно:</b> если лаунчер уже запускался ранее и всё работает — компоненты можно не устанавливать повторно. Если после установки лаунчер не открывается, перезагрузите ПК.
+    </div>
+
+    <a href="<?= htmlspecialchars($SELF) ?>" class="guide-back">← Назад на главную</a>
+</div>
+<?php else: ?>
+<!-- ================= ГЛАВНАЯ СТРАНИЦА ================= -->
+<div class="card">
+    <div class="badge">ОФИЦИАЛЬНЫЙ ЛАУНЧЕР</div>
+    <h1 class="logo"><?= htmlspecialchars($siteName) ?></h1>
+    <p class="subtitle">Скачай лаунчер и присоединяйся к серверу</p>
+
+    <a href="?guide=main" class="btn-download">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/>
+            <line x1="12" y1="15" x2="12" y2="3"/>
+        </svg>
+        Скачать лаунчер
+    </a>
+
+    <!-- ===== Запасной лаунчер ===== -->
+    <div class="fallback">
+        <a href="?guide=fallback" class="btn-fallback">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 1 1-3.51-7.12"/>
+                <polyline points="21 3 21 9 15 9"/>
+            </svg>
+            Запасной лаунчер
+        </a>
+        <span class="fallback-hint">
+            Если основной не запускается или не скачивается — попробуйте эту версию
+        </span>
+    </div>
+
+    <div class="menu">
+        <a href="rules.php" class="btn-menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+                <polyline points="14 2 14 8 20 8"/>
+                <line x1="9" y1="13" x2="15" y2="13"/>
+                <line x1="9" y1="17" x2="15" y2="17"/>
+            </svg>
+            Правила
+        </a>
+        <a href="owners.php" class="btn-menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                <circle cx="9" cy="7" r="4"/>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            Владельцы
+        </a>
+        <a href="updates.php" class="btn-menu">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"/>
+                <polyline points="1 20 1 14 7 14"/>
+                <path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10"/>
+                <path d="M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+            </svg>
+            Обновления
+        </a>
+    </div>
+
+    <a href="<?= htmlspecialchars($telegramUrl) ?>" target="_blank" class="btn-telegram">
+        <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M11.944 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0a12 12 0 0 0-.056 0zm4.962 7.224c.1-.002.321.023.465.14a.506.506 0 0 1 .171.325c.016.093.036.306.02.472-.18 1.898-.962 6.502-1.36 8.627-.168.9-.499 1.201-.82 1.23-.696.065-1.225-.46-1.9-.902-1.056-.693-1.653-1.124-2.678-1.8-1.185-.78-.417-1.21.258-1.91.177-.184 3.247-2.977 3.307-3.23.007-.032.014-.15-.056-.212s-.174-.041-.249-.024c-.106.024-1.793 1.14-5.061 3.345-.48.33-.913.49-1.302.48-.428-.008-1.252-.241-1.865-.44-.752-.245-1.349-.374-1.297-.789.027-.216.325-.437.893-.663 3.498-1.524 5.83-2.529 6.998-3.014 3.332-1.386 4.025-1.627 4.476-1.635z"/>
+        </svg>
+        Телеграм-канал
+    </a>
+</div>
+<?php endif; ?>
+</body>
+</html>
